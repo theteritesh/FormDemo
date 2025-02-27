@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Information Form</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <h2>Edit User Information</h2>
+        <form th:action="@{/update}" th:object="${user}" method="post" id="userForm">
+			<input type="hidden" th:field="*{id}" />
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Name</label>
+                        <input type="text" class="form-control" th:field="*{name}" id="name" placeholder="Enter your name" />
+                        <span class="text-danger" id="nameError"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="mobile">Mobile No</label>
+                        <input type="tel" class="form-control" th:field="*{mobile}" id="mobile" placeholder="Enter your mobile number" />
+						<span class="text-danger" id="mobileError"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" class="form-control" th:field="*{email}" id="email" placeholder="Enter your email" />
+						<span class="text-danger" id="emailError"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="dob">Date of Birth</label>
+                        <input type="date" class="form-control" th:field="*{dob}" id="dob" />
+						<span class="text-danger" id="dobError"></span>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="section-title">Education Details</h5>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="degree">Degree</label>
+                        <input type="text" class="form-control" th:field="*{degree}" id="degree" placeholder="Enter your degree" />
+						<span class="text-danger" id="degreeError"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="institution">Institution</label>
+                        <input type="text" class="form-control" th:field="*{institution}" id="institution" placeholder="Enter institution name" />
+                        <span class="text-danger" id="institutionError"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="year">Year of Graduation</label>
+                        <input type="number" class="form-control" th:field="*{year}" id="year" placeholder="Enter year of graduation" />
+						<span class="text-danger" id="yearError"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="education-type">Type of Education</label>
+                        <select class="form-control" th:field="*{educationType}" id="education-type">
+                            <option value="" disabled selected>Select type</option>
+                            <option value="high-school">High School</option>
+                            <option value="bachelor">Bachelor's</option>
+                            <option value="master">Master's</option>
+                            <option value="phd">PhD</option>
+                        </select>
+						<span class="text-danger" id="educationTypeError"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Gender</label><br />
+                <div class="d-flex gap-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" th:field="*{gender}" id="male" value="male" />
+                        <label class="form-check-label" for="male">Male</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" th:field="*{gender}" id="female" value="female" />
+                        <label class="form-check-label" for="female">Female</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" th:field="*{gender}" id="other" value="other" />
+                        <label class="form-check-label" for="other">Other</label>
+                    </div>
+                </div>
+                <span class="text-danger" id="genderError"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="description">Description</label>
+                <textarea class="form-control" th:field="*{description}" id="description" rows="4" placeholder="Enter a brief description"></textarea>
+                <span class="text-danger" id="descriptionError"></span>
+            </div>
+
+            <div id="validationMessages" class="text-danger mb-3"></div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-5">Update</button>
+            </div>
+        </form>
+    </div>
+    <script src="/assets/js/validation.js"></script>
+</body>
+</html>

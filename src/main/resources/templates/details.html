@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>User Details</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="/assets/css/styles.css" />
+</head>
+
+<body>
+	<div class="container" id="details-container">
+		<h2 class="mt-4">User Details</h2>
+
+		<!-- Search Bar -->
+		<div class="mb-3 d-flex">
+			<form th:action="@{/search}" method="get" class="d-flex ms-2">
+				<input type="text" class="form-control" name="query" placeholder="Search by name or email..."
+					th:value="${searchQuery}">
+				<button type="submit" class="btn btn-primary ms-2">Search</button>
+			</form>
+			<a th:href="@{/details}" class="btn btn-primary ms-2">Show All</a>
+		</div>
+
+
+
+
+		<div class="table-responsive">
+			<table class="table table-bordered mt-3">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Name</th>
+						<th>Mobile</th>
+						<th>Email</th>
+						<th>Date of Birth</th>
+						<th>Degree</th>
+						<th>Institution</th>
+						<th>Year of Graduation</th>
+						<th>Type of Education</th>
+						<th>Gender</th>
+						<th>Description</th>
+						<th id="action">Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="user : ${users}">
+						<td th:text="${user.id}"></td>
+						<td th:text="${user.name}"></td>
+						<td th:text="${user.mobile}"></td>
+						<td th:text="${user.email}"></td>
+						<td th:text="${user.dob}"></td>
+						<td th:text="${user.degree}"></td>
+						<td th:text="${user.institution}"></td>
+						<td th:text="${user.year}"></td>
+						<td th:text="${user.educationType}"></td>
+						<td th:text="${user.gender}"></td>
+						<td th:text="${user.description}"></td>
+						<td>
+							<!-- Edit Button -->
+							<button class="btn btn-warning btn-sm edit-btn" data-bs-toggle="modal"
+								data-bs-target="#editModal" th:data-id="${user.id}" th:data-name="${user.name}"
+								th:data-mobile="${user.mobile}" th:data-email="${user.email}" th:data-dob="${user.dob}"
+								th:data-degree="${user.degree}" th:data-institution="${user.institution}"
+								th:data-year="${user.year}" th:data-educationtype="${user.educationType}"
+								th:data-gender="${user.gender}" th:data-description="${user.description}">
+								Edit
+							</button>
+							<!-- Delete Button -->
+							<form th:action="@{/delete/{id}(id=${user.id})}" method="post" style="display:inline;">
+								<button type="submit" class="btn btn-danger btn-sm"
+									onclick="return confirm('Are you sure you want to delete this user?');">
+									Delete
+								</button>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<a href="/form" class="btn btn-primary">Add New User</a>
+
+		<div class="d-flex justify-content-between align-items-center mt-3">
+			<!-- Page Size Dropdown -->
+			<div class="d-flex align-items-center">
+				<label for="pageSize" class="me-2">Show</label>
+				<select id="pageSize" class="form-select w-auto" onchange="changePageSize()">
+					<option value="5" th:selected="${size == 5}">5</option>
+					<option value="10" th:selected="${size == 10}">10</option>
+					<option value="15" th:selected="${size == 15}">15</option>
+					<option value="20" th:selected="${size == 20}">20</option>
+
+					<option value="50" th:selected="${size == 50}">50</option>
+					<option value="100" th:selected="${size == 100}">100</option>
+				</select>
+				<span class="ms-2">entries</span>
+			</div>
+
+			
+			
+			<div class="d-flex">
+			    <!-- Determine base URL dynamically -->
+			    <th:block th:with="baseUrl=${searchQuery != null ? '/search' : '/details'}">
+
+			        <!-- Previous Button -->
+			        <a th:if="${currentPage > 0}" 
+			           th:href="@{${baseUrl}(page=${currentPage - 1}, size=${size}, query=${searchQuery})}" 
+			           class="btn btn-secondary me-2">&#8592;</a>
+
+			        <!-- Page Numbers -->
+			        <a th:if="${currentPage > 0}" 
+			           th:href="@{${baseUrl}(page=${currentPage - 1}, size=${size}, query=${searchQuery})}" 
+			           class="btn btn-light me-2" th:text="${currentPage}"></a> <!-- Previous Page -->
+
+			        <button class="btn btn-primary me-2" disabled th:text="${currentPage + 1}"></button> <!-- Current Page -->
+
+			        <a th:if="${currentPage + 1 < totalPages}" 
+			           th:href="@{${baseUrl}(page=${currentPage + 1}, size=${size}, query=${searchQuery})}" 
+			           class="btn btn-light me-2" th:text="${currentPage + 2}"></a> <!-- Next Page -->
+
+			        <!-- Next Button -->
+			        <a th:if="${currentPage + 1 < totalPages}" 
+			           th:href="@{${baseUrl}(page=${currentPage + 1}, size=${size}, query=${searchQuery})}" 
+			           class="btn btn-secondary">&#8594;</a>
+
+			    </th:block>
+			</div>
+
+
+		</div>
+
+	</div>
+
+
+
+
+
+
+
+	<!-- Edit Modal --------------------------------->
+	<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="editModalLabel">Edit User</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form th:action="@{/update}" method="post" id="editForm">
+						<input type="hidden" name="id" id="edit-id">
+
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="edit-name">Name</label>
+									<input type="text" class="form-control" name="name" id="edit-name"
+										placeholder="Enter your name" />
+									<span class="text-danger" id="editNameError"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="edit-mobile">Mobile No</label>
+									<input type="tel" class="form-control" name="mobile" id="edit-mobile"
+										placeholder="Enter your mobile number" />
+									<span class="text-danger" id="editMobileError"></span>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="edit-email">Email</label>
+									<input type="text" class="form-control" name="email" id="edit-email"
+										placeholder="Enter your email" />
+									<span class="text-danger" id="editEmailError"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="edit-dob">Date of Birth</label>
+									<input type="date" class="form-control" name="dob" id="edit-dob" />
+									<span class="text-danger" id="editDobError"></span>
+								</div>
+							</div>
+						</div>
+
+						<h5 class="section-title">Education Details</h5>
+
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="edit-degree">Degree</label>
+									<input type="text" class="form-control" name="degree" id="edit-degree"
+										placeholder="Enter your degree" />
+									<span class="text-danger" id="editDegreeError"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="edit-institution">Institution</label>
+									<input type="text" class="form-control" name="institution" id="edit-institution"
+										placeholder="Enter institution name" />
+									<span class="text-danger" id="editInstitutionError"></span>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="edit-year">Year of Graduation</label>
+									<input type="number" class="form-control" name="year" id="edit-year"
+										placeholder="Enter year of graduation" />
+									<span class="text-danger" id="editYearError"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="edit-educationtype">Type of Education</label>
+									<select class="form-control" name="educationType" id="edit-educationtype">
+										<option value="" disabled selected>Select type</option>
+										<option value="high-school">High School</option>
+										<option value="bachelor">Bachelor's</option>
+										<option value="master">Master's</option>
+										<option value="phd">PhD</option>
+									</select>
+									<span class="text-danger" id="editEducationTypeError"></span>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="form-label">Gender</label><br />
+							<div class="d-flex gap-4">
+								<div class="form-check">
+									<input class="form-check-input" type="radio" name="gender" id="edit-male"
+										value="male" />
+									<label class="form-check-label" for="edit-male">Male</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="radio" name="gender" id="edit-female"
+										value="female" />
+									<label class="form-check-label" for="edit-female">Female</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="radio" name="gender" id="edit-other"
+										value="other" />
+									<label class="form-check-label" for="edit-other">Other</label>
+								</div>
+							</div>
+							<span class="text-danger" id="editGenderError"></span>
+						</div>
+
+						<div class="form-group">
+							<label class="form-label" for="edit-description">Description</label>
+							<textarea class="form-control" name="description" id="edit-description" rows="4"
+								placeholder="Enter a brief description"></textarea>
+							<span class="text-danger" id="editDescriptionError"></span>
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button type="submit" class="btn btn-primary">Update</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		function changePageSize() {
+		    let selectedSize = document.getElementById("pageSize").value;
+		    let searchQuery = new URLSearchParams(window.location.search).get("query"); // Get search query if present
+
+		    if (searchQuery) {
+		        window.location.href = `/search?query=${searchQuery}&page=0&size=${selectedSize}`;
+		    } else {
+		        window.location.href = `/details?page=0&size=${selectedSize}`;
+		    }
+		}
+
+	</script>
+	<script src="/assets/js/edit_data_show.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
